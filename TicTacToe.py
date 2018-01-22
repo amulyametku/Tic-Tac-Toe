@@ -142,9 +142,7 @@ while True:
         if currentPlayer == 'computer':
             print("Computer : Thinking....")
             drawBoard(board)
-            print()
-            print()
-            print()
+            print() * 3
             move = getComputerMove(board, computerLetter)
             makeMove(board, computerLetter, move)
             if isWinner(board, computerLetter) == True:
