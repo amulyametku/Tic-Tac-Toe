@@ -3,11 +3,11 @@ import random
 def inputPlayerLetter():
     print("Enter a letter. Either X (or) O")
     char = input().upper()
-    print("Good, you've entered "+ char)
+    print("You've entered "+ char)
     if(char == 'X'):
-        return ['X']['O']
+        return ('X','O')
     else:
-        return ['O']['X']
+        return ('O','X')
 
 def drawBoard(board):
      print(board[7] + '|' + board[8] + '|' + board[9])
@@ -41,29 +41,127 @@ def isWinner(bo, le):
       (bo[9] == le and bo[5] == le and bo[1] == le))
 
 
-def makeMove(board,letter,  move):
-    board[move] == letter
+def makeMove(board, letter, move):
+    board[move] = letter
 
 def isSpaceFree(board, move):
-    return  board[move] == ' '
+    if board[move] == ' ':
+        return True
+    return False
 
+def isBoardFull(board):
+    for i in range(10):
+        if(board[i] == ' '):
+            return False
+    return True
 
+def getBoardCopy(board):
+    duplicate_board = []
+    for i in range(10):
+        duplicate_board.append(i)
+    return duplicate_board
 
+def getRandomMove(board, list):
 
+    freeSpaceList = []
+    for i in range(10):
+        if isSpaceFree(board, i):
+            freeSpaceList.append(i)
+
+    if len(freeSpaceList) > 0:
+        return random.choice(freeSpaceList)
+    else:
+        return None
+
+def getComputerMove(board, computerLetter):
+    if computerLetter == 'X':
+        playerLetter = 'O'
+    else:
+        playerLetter = 'X'
+
+    for i in range(10):
+        #choose a winning move for computer
+        dupBoard = getBoardCopy(board)
+        for i in range(10):
+            if isSpaceFree(dupBoard, i):
+                makeMove(dupBoard, computerLetter, i)
+                if isWinner(dupBoard, computerLetter):
+                     return i
+
+        #block the winning move of player
+        dupBoard = getBoardCopy(board)
+        for i in range(10):
+            if isSpaceFree(dupBoard,  i):
+                makeMove(dupBoard, playerLetter, i)
+                if isWinner(board, playerLetter):
+                    return i
+
+        #move in corners positions
+        possibleMoveList = [1,3,7,9]
+        move = getRandomMove(board, possibleMoveList)
+        if move!= None:
+            return move
+
+        #move in center
+        if isSpaceFree(board, 5):
+            return 5
+
+        #move at remaining places
+        possibleMoveList = [2,4,6,8]
+        move = getRandomMove(board, possibleMoveList)
+        if( move!= None):
+            return move
 
 print('Tic-Tac-Toe Game Begins now!')
 
 while True:
     board = [' '] * 10
     playerLetter, computerLetter = inputPlayerLetter()
-    firstPlayer = firstTurnDetermine()
-    print("The player " + firstPlayer + " will go first.")
+    currentPlayer = firstTurnDetermine()
+    print("The player " + currentPlayer + " will go first.")
     gameOver = False
     while not gameOver:
-        if firstPlayer == 'player':
+        if currentPlayer == 'player':
             drawBoard(board)
-            move = playerMove(board)
+            move = playerMove()
+            makeMove(board, playerLetter , move)
+            if isWinner(board, playerLetter) == True:
+                drawBoard(board)
+                print("Wohoo! You won the game!")
+                gameOver = True
+            else:
+                if isBoardFull(board) == True:
+                    drawBoard(board)
+                    print('It is a tie!')
+                    gameOver = True
+                    break
+                else:
+                    currentPlayer = 'computer'
 
+
+        if currentPlayer == 'computer':
+            print("Computer : Thinking....")
+            drawBoard(board)
+            print()
+            print()
+            print()
+            move = getComputerMove(board, computerLetter)
+            makeMove(board, computerLetter, move)
+            if isWinner(board, computerLetter) == True:
+                drawBoard(board)
+                print("Uh oh! :( You lost the game! Better luck next time.")
+                gameOver = True
+            else:
+                if isBoardFull(board) == True:
+                    drawBoard(board)
+                    print('It is a tie!')
+                    gameOver = True
+                    break
+                else:
+                    currentPlayer = 'player'
+
+    if gameOver:
+         exit()
 
 
 
